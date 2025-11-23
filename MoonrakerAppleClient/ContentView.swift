@@ -5,35 +5,27 @@
 //  Created by Mikolaj Skrzypczak on 16/10/2024.
 //
 
-import SwiftUI
 import AnyCodable
+import SwiftUI
 
 struct ContentView: View {
-    @EnvironmentObject var printer: Printer
-    
+    @EnvironmentObject var printer: PrinterViewModel
     var body: some View {
-        ZStack {
-            VStack {
-                Text(printer.stateMessage)
-                ToolView()
+        VStack {
+            Text(printer.printerState.stateMessage)
+
+            Button(action: {
+                Task {
+                    await printer.fetchInfo()
+                }
+            }) {
+                Text("Fetch")
             }
-            VStack {
-                if !printer.errors.isEmpty {
-                    ForEach(printer.errors) { error in
-                        Printer.ErrorPopup(
-                            domain: error.domain,
-                            message: error.message,
-                            dismiss: {
-                                printer.dismissErrorPopup(error)
-                            })
-                    }
+            Button("Home") {
+                Task {
+                    await printer.homeX()
                 }
             }
         }
     }
-}
-
-#Preview {
-    ContentView()
-        .environmentObject(PreviewEnvironment.printer)
 }
